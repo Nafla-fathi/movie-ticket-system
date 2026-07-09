@@ -15,6 +15,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $theater = $_POST['theater'];
     $seats = (int)$_POST['seats'];
     $date = $_POST['date'];
+    $today = date("Y-m-d");
+    if ($date < $today) {
+        echo json_encode([
+            "success" => false,
+            "message" => "You cannot book tickets for a past date."
+        ]);
+        exit();
+    }
+    
     $slot = $_POST['slot'];
     $total = $seats * 100;
 
