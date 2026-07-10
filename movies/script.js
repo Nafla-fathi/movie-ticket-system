@@ -7,6 +7,32 @@ function switchTab(tabId) {
     if (tabId === 'reviews') loadReviews();
 }
 
+// Set min and max date for booking
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date');
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    // Set min date to today
+    const minDate = today.toISOString().split('T')[0];
+    dateInput.setAttribute('min', minDate);
+    
+    // Set max date to end of current month
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+    const maxDate = lastDayOfMonth.toISOString().split('T')[0];
+    dateInput.setAttribute('max', maxDate);
+    
+    // Add validation on change
+    dateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        if (selectedDate.getMonth() !== currentMonth || selectedDate.getFullYear() !== currentYear) {
+            alert('You can only book tickets for the current month!');
+            this.value = '';
+        }
+    });
+});
+
 document.getElementById('bookingForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const movie = document.getElementById('movie').value;
@@ -18,6 +44,18 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
 
     if (!movie || !theater || !date || !showtime) {
         alert('Please fill all fields.');
+        return;
+    }
+
+    // Additional validation for current month
+    const selectedDate = new Date(date);
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    if (selectedDate.getMonth() !== currentMonth || selectedDate.getFullYear() !== currentYear) {
+        alert('You can only book tickets for the current month!');
+        document.getElementById('date').value = '';
         return;
     }
 
@@ -65,16 +103,18 @@ function updateActivityList() {
         activityList.innerHTML = data.map(booking => `
             <div class="booking-details">
                 <h3>Booking Confirmed</h3>
-                <p>Movie: ${booking.movie || 'N/A'}</p>
-                <p>Theater: ${booking.theater || 'N/A'}</p>
-                <p>Seats: ${booking.seats || 'N/A'}</p>
-                <p>Date: ${booking.date || 'N/A'}</p>
-                <p>Time: ${booking.slot || 'N/A'}</p>
-                <p>Total Paid: $${booking.total || 'N/A'}</p>
+                <p><strong>Movie:</strong> ${booking.movie || 'N/A'}</p>
+                <p><strong>Theater:</strong> ${booking.theater || 'N/A'}</p>
+                <p><strong>Seats:</strong> ${booking.seats_booked || booking.seats || 'N/A'}</p>
+                <p><strong>Date:</strong> ${booking.date || 'N/A'}</p>
+                <p><strong>Time:</strong> ${booking.slot || 'N/A'}</p>
+                <p><strong>Total Paid:</strong> $${booking.total || 'N/A'}</p>
             </div>
         `).join('');
     })
-    .catch(error => document.getElementById('activityList').innerHTML = 'Error loading activity: ' + error.message);
+    .catch(error => {
+        document.getElementById('activityList').innerHTML = 'Error loading activity: ' + error.message;
+    });
 }
 
 document.getElementById('searchBar').addEventListener('input', function(e) {
@@ -95,10 +135,16 @@ function loadReviews() {
             return;
         }
         reviewList.innerHTML = data.map(r => `
-            <div class="review">Rating: ${r.rating}/5<br>${r.comment || 'No comment'}</div>
+            <div class="review">
+                <p><strong>Movie:</strong> ${r.movie || 'N/A'}</p>
+                <p><strong>Rating:</strong> ${r.rating}/5</p>
+                <p><strong>Comment:</strong> ${r.comment || 'No comment'}</p>
+            </div>
         `).join('');
     })
-    .catch(error => document.getElementById('review-list').innerHTML = 'Error loading reviews: ' + error.message);
+    .catch(error => {
+        document.getElementById('review-list').innerHTML = 'Error loading reviews: ' + error.message;
+    });
 }
 
 function submitReview() {
@@ -128,7 +174,12 @@ function submitReview() {
             alert('Error: ' + data.message);
         }
     })
-    .catch(error => alert('An error occurred: ' + error.message));
+    .catch(error => {
+        alert('An error occurred: ' + error.message);
+    });
 }
 
-document.addEventListener('DOMContentLoaded', () => switchTab('movies'));
+// Set default tab
+if (document.querySelector('.tab-content')) {
+    switchTab('movies');
+}

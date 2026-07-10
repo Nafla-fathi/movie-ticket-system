@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Booking</title>
+</head>
+<body>
+    <h2>Test Booking Form</h2>
+    <form id="testForm">
+        <input type="text" name="movie" value="Deadpool & Wolverine" placeholder="Movie">
+        <input type="text" name="theater" value="Krishna Theatre" placeholder="Theater">
+        <input type="number" name="seats" value="4" placeholder="Seats">
+        <input type="date" name="date" id="testDate" placeholder="Date">
+        <input type="text" name="slot" value="4:20 pm - 7:20 pm" placeholder="Slot">
+        <button type="submit">Test Booking</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        // Set today's date
+        document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
+
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Processing...';
+
+            fetch('save_booking_debug.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(text => {
+                resultDiv.innerHTML = '<pre>' + text + '</pre>';
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        resultDiv.innerHTML += '<br>✅ Success!';
+                    } else {
+                        resultDiv.innerHTML += '<br>❌ Error: ' + data.message;
+                    }
+                } catch (e) {
+                    resultDiv.innerHTML += '<br>❌ Invalid JSON response';
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = '❌ Error: ' + error.message;
+            });
+        });
+    </script>
+</body>
+</html>

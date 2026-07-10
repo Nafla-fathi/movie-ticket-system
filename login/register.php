@@ -7,10 +7,9 @@ if ($conn->connect_error) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['new-username'];
-    $password = password_hash($_POST['new-password'], PASSWORD_DEFAULT); // Secure hashing
+    $password = password_hash($_POST['new-password'], PASSWORD_DEFAULT);
     $confirm_password = $_POST['confirm-password'];
 
-    // Verify password match before hashing
     if ($_POST['new-password'] !== $confirm_password) {
         echo "<script>alert('Passwords do not match'); window.location.href='index.html';</script>";
         exit();

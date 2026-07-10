@@ -1,5 +1,6 @@
 <?php
 session_start();
+header('Content-Type: application/json');
 
 if (!isset($_SESSION['username'])) {
     die(json_encode(['success' => false, 'message' => 'User not logged in']));
@@ -12,12 +13,14 @@ if ($conn->connect_error) {
 }
 
 $username = $_SESSION['username'];
+
 $stmt = $conn->prepare("
     SELECT b.*, m.title AS movie 
     FROM bookings b 
     JOIN users u ON b.user_id = u.id 
     JOIN movies m ON b.movie_id = m.id 
     WHERE u.username = ?
+    ORDER BY b.booking_date DESC
 ");
 $stmt->bind_param("s", $username);
 $stmt->execute();

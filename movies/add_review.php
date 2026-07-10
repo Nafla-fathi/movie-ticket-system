@@ -1,5 +1,7 @@
 <?php
 session_start();
+header('Content-Type: application/json');
+
 $conn = new mysqli("localhost", "root", "", "movie_ticket_db");
 
 if ($conn->connect_error) {
@@ -7,9 +9,14 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $movie_title = $_POST['movie'];
-    $rating = (int)$_POST['rating'];
+    $movie_title = $_POST['movie'] ?? '';
+    $rating = (int)($_POST['rating'] ?? 0);
     $comment = $_POST['comment'] ?? '';
+
+    // Validate inputs
+    if (empty($movie_title) || $rating < 1 || $rating > 5) {
+        die(json_encode(['success' => false, 'message' => 'Please provide valid movie and rating']));
+    }
 
     // Get movie_id
     $movie_query = $conn->prepare("SELECT id FROM movies WHERE title = ?");
@@ -17,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $movie_query->execute();
     $movie_result = $movie_query->get_result();
     $movie = $movie_result->fetch_assoc();
+    
     if (!$movie) {
         die(json_encode(['success' => false, 'message' => 'Movie not found']));
     }

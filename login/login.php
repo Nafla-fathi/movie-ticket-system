@@ -8,7 +8,7 @@ if ($conn->connect_error) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
-    $password = $_POST['password']; // Plaintext password from form
+    $password = $_POST['password'];
     $role = $_POST['role'];
 
     $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ? AND role = ?");
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($password, $user['password'])) {
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
-            $_SESSION['user_id'] = $user['id']; // Store user ID for later use
+            $_SESSION['user_id'] = $user['id'];
             session_write_close();
             header("Location: ../movies/index.php");
             exit();
