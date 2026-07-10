@@ -179,7 +179,4 @@ function submitReview() {
     });
 }
 
-// Set default tab
-if (document.querySelector('.tab-content')) {
-    switchTab('movies');
-}
+document.addEventListener('DOMContentLoaded', () => switchTab('movies'));
